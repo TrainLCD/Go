@@ -48,7 +48,7 @@ const Header = () => {
   return (
     <animated.div
       style={springs}
-      className="fixed px-16 text-lg w-screen py-4 lg:py-6 border-b-1 bg-white"
+      className="fixed px-4 lg:px-16 text-lg w-screen py-4 lg:py-6 border-b-1 bg-white"
     >
       <h1 className="font-bold text-default-800">TrainLCD Go</h1>
     </animated.div>
