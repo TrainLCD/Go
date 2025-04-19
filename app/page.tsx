@@ -39,6 +39,22 @@ const STOP_CONDITIONS = [
   { id: 4, text: "休日停車", color: "red-400" },
 ] as const;
 
+const Header = () => {
+  const springs = useSpring({
+    from: { opacity: 0, marginTop: "-8px" },
+    to: { opacity: 1, marginTop: "0px" },
+  });
+
+  return (
+    <animated.div
+      style={springs}
+      className="fixed px-16 text-lg w-screen py-4 lg:py-6 border-b-1 bg-white"
+    >
+      <h1 className="font-bold text-default-800">TrainLCD Go</h1>
+    </animated.div>
+  );
+};
+
 const SelectStationListBox = ({
   loading,
   value,
@@ -62,7 +78,7 @@ const SelectStationListBox = ({
   return (
     <animated.div
       style={springs}
-      className="flex flex-col flex-shrink-0 min-h-dvh w-11/12 mx-auto pt-4 pb-24"
+      className="flex flex-col flex-shrink-0 min-h-dvh w-11/12 mx-auto pt-24 pb-24"
     >
       <Listbox
         aria-label="検索する駅名を入力してください"
@@ -693,7 +709,9 @@ export default function Home() {
   );
 
   return (
-    <main className="flex flex-col w-screen h-full mx-auto overflow-hidden">
+    <main className="flex flex-col w-screen h-full mx-auto overflow-hidden z-1">
+      <Header />
+
       <FormProvider {...methods}>
         {searchMode === "station" && screenMode === "src" && (
           <SelectStationListBox
@@ -741,7 +759,7 @@ export default function Home() {
         )}
 
         {screenMode === "res" && (
-          <div className="flex flex-col flex-shrink-0 min-h-dvh max-h-screen pt-4 pb-24 w-11/12 mx-auto transition-height">
+          <div className="flex flex-col flex-shrink-0 min-h-dvh max-h-screen pt-24 pb-24 w-11/12 mx-auto transition-height">
             <p className="font-medium opacity-90 text-center">
               こちらの経路が見つかりました
             </p>
