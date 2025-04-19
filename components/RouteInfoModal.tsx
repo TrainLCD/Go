@@ -24,12 +24,12 @@ type Props = {
 };
 
 const STOP_CONDITIONS = [
-  { id: 0, text: "停車", color: "black" },
-  { id: 1, text: "通過", color: "gray-400" },
-  { id: 2, text: "一部通過", color: "yellow-400" },
-  { id: 5, text: "一部停車", color: "yellow-400" },
-  { id: 3, text: "平日停車", color: "blue-400" },
-  { id: 4, text: "休日停車", color: "red-400" },
+  { id: 0, text: "停車", color: "#000000" },
+  { id: 1, text: "通過", color: "#99a1af" },
+  { id: 2, text: "一部通過", color: "#fcc800" },
+  { id: 5, text: "一部停車", color: "#fcc800" },
+  { id: 3, text: "平日停車", color: "#51a2ff" },
+  { id: 4, text: "休日停車", color: "#ff6467" },
 ] as const;
 
 export const RouteInfoModal = ({
@@ -70,11 +70,11 @@ export const RouteInfoModal = ({
                   ) : (
                     <span
                       key={stop.id}
-                      className={`text-${
-                        STOP_CONDITIONS.find(
+                      style={{
+                        color: STOP_CONDITIONS.find(
                           (cnd) => cnd.id === stop.stopCondition
-                        )?.color ?? ""
-                      }`}
+                        )?.color,
+                      }}
                     >
                       {stop.name}
                     </span>
@@ -86,7 +86,8 @@ export const RouteInfoModal = ({
                 {STOP_CONDITIONS.map((cnd) => (
                   <div className="flex items-center gap-2" key={cnd.id}>
                     <div
-                      className={`w-4 h-4 bg-${cnd.color} border-1 rounded`}
+                      className={`w-4 h-4 border-1 rounded`}
+                      style={{ backgroundColor: cnd.color }}
                     />
                     <span>{cnd.text}</span>
                   </div>
