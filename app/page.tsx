@@ -48,7 +48,7 @@ const Header = () => {
   return (
     <animated.div
       style={springs}
-      className="fixed px-4 lg:px-16 text-lg w-screen py-4 lg:py-6 border-b-1 bg-white"
+      className="fixed px-4 lg:px-16 text-lg w-screen py-4 lg:py-6 border-b-1 bg-white z-10"
     >
       <h1 className="font-bold text-default-800">TrainLCD Go</h1>
     </animated.div>
@@ -78,7 +78,7 @@ const SelectStationListBox = ({
   return (
     <animated.div
       style={springs}
-      className="flex flex-col flex-shrink-0 min-h-dvh w-11/12 mx-auto pt-24 pb-24"
+      className="flex flex-col flex-shrink-0 min-h-dvh w-11/12 mx-auto pt-20 lg:pt-24 pb-20 lg:pb-24"
     >
       <Listbox
         aria-label="検索する駅名を入力してください"
@@ -141,7 +141,7 @@ const SelectStationListBox = ({
           </ListboxItem>
         ))}
       </Listbox>
-      <p className="font-medium mt-2 text-xs opacity-50">
+      <p className="font-medium mt-2 mb-8 text-xs opacity-50">
         {selectedFromStation ? (
           <>
             <p className="font-bold">
@@ -178,7 +178,7 @@ const LineListBox = ({
   return (
     <animated.div
       style={springs}
-      className="flex flex-col flex-shrink-0 min-h-dvh w-11/12 mx-auto pt-4 pb-24"
+      className="flex flex-col flex-shrink-0 min-h-dvh w-11/12 mx-auto pt-4 pb-20 lg:pb-24"
     >
       <Listbox
         aria-label="検索する路線名を入力してください"
@@ -237,7 +237,7 @@ const LineListBox = ({
           </ListboxItem>
         ))}
       </Listbox>
-      <p className="font-medium mt-2 text-xs opacity-50">
+      <p className="font-medium mt-2 mb-8 text-xs opacity-50">
         10路線以上の検索結果は表示されません。
       </p>
     </animated.div>
@@ -709,7 +709,7 @@ export default function Home() {
   );
 
   return (
-    <main className="flex flex-col w-screen h-full mx-auto overflow-hidden z-1">
+    <main className="flex flex-col w-screen h-full mx-auto overflow-hidden">
       <Header />
 
       <FormProvider {...methods}>
@@ -745,21 +745,23 @@ export default function Home() {
         )}
 
         {searchMode === "line" && screenMode !== "res" && (
-          <LineListBox
-            loading={isSingleLineLoading || isLinesLoading}
-            value={selectedFromStationId}
-            lines={singleLine ? [singleLine] : lines ?? []}
-            isDirty={dirtyFields.lineIdOrName ?? false}
-            onSelectionChange={(keys) => {
-              const keysArr = Array.from(keys as Set<string>);
-              setValue("selectedLineId", keysArr[0]);
-              params.update({ lid: keysArr[0] });
-            }}
-          />
+          <div className="pt-16 lg:pt-20">
+            <LineListBox
+              loading={isSingleLineLoading || isLinesLoading}
+              value={selectedFromStationId}
+              lines={singleLine ? [singleLine] : lines ?? []}
+              isDirty={dirtyFields.lineIdOrName ?? false}
+              onSelectionChange={(keys) => {
+                const keysArr = Array.from(keys as Set<string>);
+                setValue("selectedLineId", keysArr[0]);
+                params.update({ lid: keysArr[0] });
+              }}
+            />
+          </div>
         )}
 
         {screenMode === "res" && (
-          <div className="flex flex-col flex-shrink-0 min-h-dvh max-h-screen pt-24 pb-24 w-11/12 mx-auto transition-height">
+          <div className="flex flex-col flex-shrink-0 min-h-dvh max-h-screen pt-20 lg:pt-24 pb-20 lg:pb-24 w-11/12 mx-auto transition-height">
             <p className="font-medium opacity-90 text-center">
               こちらの経路が見つかりました
             </p>
@@ -769,7 +771,7 @@ export default function Home() {
               isToStationsLoading ||
               !fromStation ||
               !toStation) ? (
-              <Skeleton className="w-32 h-4 mt-1 mb-8 self-center rounded-md" />
+              <Skeleton className="w-32 h-4 mt-1 mb-4 lg:mb-8 self-center rounded-md" />
             ) : null}
 
             {params.get("mode") !== "line" &&
@@ -777,7 +779,7 @@ export default function Home() {
             !isToStationsLoading &&
             fromStation &&
             toStation ? (
-              <p className="font-medium opacity-50 mt-1 mb-8 text-center text-xs">
+              <p className="font-medium opacity-50 mt-1 mb-4 lg:mb-8 text-center text-xs">
                 {fromStation?.name}
                 &nbsp;-&nbsp;
                 {toStation?.name}
@@ -787,7 +789,7 @@ export default function Home() {
             {params.get("lid") &&
             params.get("mode") === "line" &&
             !isLinesLoading ? (
-              <p className="font-medium opacity-50 mt-1 mb-8 text-center text-xs">
+              <p className="font-medium opacity-50 mt-1 mb-4 lg:mb-8 text-center text-xs">
                 {singleLine
                   ? singleLine?.nameShort
                   : lines?.find((l) => l.id === Number(selectedLineId))
@@ -798,7 +800,7 @@ export default function Home() {
             {params.get("lid") &&
             params.get("mode") === "line" &&
             isSingleLineLoading ? (
-              <Skeleton className="w-32 h-4 mt-1 mb-8 self-center rounded-md" />
+              <Skeleton className="w-32 h-4 mt-1 mb-4 lg:mb-8 self-center rounded-md" />
             ) : null}
 
             <>
