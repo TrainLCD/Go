@@ -10,6 +10,7 @@ import {
 } from "@nextui-org/react";
 import { CloseSmallRoundedIcon } from "./icons/CloseSmallRounded";
 import { removeBrackets } from "@/utils/removeBracket";
+import { useMemo } from "react";
 
 type Props = {
   isOpen: boolean;
@@ -39,6 +40,14 @@ export const RouteInfoModal = ({
   route,
   onLaunchApp,
 }: Props) => {
+  const uniqueLineStops = useMemo(
+    () =>
+      Array.from(
+        new Map(route?.stops.map((stop) => [stop.line?.id, stop])).values()
+      ),
+    [route?.stops]
+  );
+
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent className="overflow-y-scroll max-h-svh">
@@ -55,21 +64,24 @@ export const RouteInfoModal = ({
                     {removeBrackets(modalContent.trainType?.name ?? "")}
                   </span>
                 </div>
-                <button onClick={onClose}>
+                <button onClick={onClose} aria-label="閉じる">
                   <CloseSmallRoundedIcon />
                 </button>
               </div>
             </ModalHeader>
 
             <ModalBody>
-              <p className="font-bold">停車駅: </p>
-              <div className="flex flex-wrap gap-x-2">
+              <h2 className="font-bold">停車駅: </h2>
+              <ul className="flex flex-wrap gap-x-2 list-none pl-0">
                 {dropEitherJunctionStation(route?.stops ?? []).flatMap((stop) =>
                   stop.stopCondition === StopCondition.All ? (
-                    <span>{stop.name}</span>
+                    <li key={stop.id} className="inline">
+                      {stop.name}
+                    </li>
                   ) : (
-                    <span
+                    <li
                       key={stop.id}
+                      className="inline"
                       style={{
                         color: STOP_CONDITIONS.find(
                           (cnd) => cnd.id === stop.stopCondition
@@ -77,10 +89,10 @@ export const RouteInfoModal = ({
                       }}
                     >
                       {stop.name}
-                    </span>
+                    </li>
                   )
                 )}
-              </div>
+              </ul>
 
               <div className="flex gap-2 flex-wrap">
                 {STOP_CONDITIONS.map((cnd) => (
@@ -96,11 +108,7 @@ export const RouteInfoModal = ({
 
               <p className="font-bold">各線の種別: </p>
               <div className="whitespace-pre-wrap">
-                {Array.from(
-                  new Map(
-                    route?.stops.map((stop) => [stop.line?.id, stop])
-                  ).values()
-                ).map((stop) => (
+                {uniqueLineStops.map((stop) => (
                   <p key={stop.line?.id} className="flex flex-wrap">
                     <span className="flex-1">{stop.line?.nameShort}: </span>
                     <span
