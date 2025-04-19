@@ -69,6 +69,7 @@ export const RouteInfoModal = ({
                     <span>{stop.name}</span>
                   ) : (
                     <span
+                      key={stop.id}
                       className={`text-${
                         STOP_CONDITIONS.find(
                           (cnd) => cnd.id === stop.stopCondition
