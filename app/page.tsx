@@ -105,7 +105,7 @@ const SelectStationListBox = ({
               <p className="font-medium text-center">
                 {isDirty
                   ? "指定された駅が見つからないか、経路情報が登録されていません。"
-                  : "検索する駅名を入力してください"}
+                  : "検索条件が未入力です。"}
               </p>
             </div>
           )
