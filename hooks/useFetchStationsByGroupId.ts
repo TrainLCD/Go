@@ -18,11 +18,11 @@ export const useFetchStationsByGroupId = (groupId: number) => {
       return [];
     }
 
-    const res = await graphqlClient.request<{ stationsByGroupId: Station[] }>(
+    const res = await graphqlClient.request<{ stationGroupStations: Station[] }>(
       STATION_GROUP_STATIONS,
       variables,
     );
-    return res.stationsByGroupId;
+    return res.stationGroupStations;
   });
 
   return { stations: groupStations(stations ?? []), error, isLoading };

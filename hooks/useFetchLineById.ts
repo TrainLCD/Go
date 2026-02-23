@@ -5,7 +5,7 @@ import type { Line } from "@/types/stationapi";
 import { generateSWRKey } from "@/utils/generateSWRKey";
 
 export const useFetchLineById = (lineId: number | undefined) => {
-  const variables = { id: lineId };
+  const variables = { lineId };
   const swrKey = generateSWRKey("lineById", variables);
 
   const {
