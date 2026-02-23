@@ -1,15 +1,15 @@
 import useSWR from "swr";
-import { grpcClient } from "@/api/client";
-import { GetRouteRequest } from "@/gen/proto/stationapi_pb";
+import { graphqlClient } from "@/api/client";
+import { ROUTES } from "@/graphql/queries";
+import type { RoutesResponse } from "@/types/stationapi";
 import { generateSWRKey } from "@/utils/generateSWRKey";
 
 export const useFetchRoutes = (
   fromStationGroupId: number,
   toStationGroupId: number,
 ) => {
-  const req = new GetRouteRequest({ fromStationGroupId, toStationGroupId });
-
-  const swrKey = generateSWRKey("getRoutes", req);
+  const variables = { fromStationGroupId, toStationGroupId };
+  const swrKey = generateSWRKey("routes", variables);
 
   const {
     data: routes,
@@ -20,8 +20,11 @@ export const useFetchRoutes = (
       return [];
     }
 
-    const res = await grpcClient.getRoutes(req);
-    return res.routes;
+    const res = await graphqlClient.request<{ routes: RoutesResponse }>(
+      ROUTES,
+      variables,
+    );
+    return res.routes.routes;
   });
 
   return { routes, error, isLoading };

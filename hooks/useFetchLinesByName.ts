@@ -1,15 +1,12 @@
 import useSWR from "swr";
-import { grpcClient } from "@/api/client";
-import { GetLinesByNameRequest } from "@/gen/proto/stationapi_pb";
+import { graphqlClient } from "@/api/client";
+import { LINES_BY_NAME } from "@/graphql/queries";
+import type { Line } from "@/types/stationapi";
 import { generateSWRKey } from "@/utils/generateSWRKey";
 
 export const useFetchLinesByName = (lineIdOrName: string, limit = 10) => {
-  const req = new GetLinesByNameRequest({
-    lineName: lineIdOrName,
-    limit,
-  });
-
-  const swrKey = generateSWRKey("getLinesByNameRequest", req);
+  const variables = { name: lineIdOrName, limit };
+  const swrKey = generateSWRKey("linesByName", variables);
 
   const {
     data: lines,
@@ -20,8 +17,11 @@ export const useFetchLinesByName = (lineIdOrName: string, limit = 10) => {
       return [];
     }
 
-    const res = await grpcClient.getLinesByName(req);
-    return res.lines;
+    const res = await graphqlClient.request<{ linesByName: Line[] }>(
+      LINES_BY_NAME,
+      variables,
+    );
+    return res.linesByName;
   });
 
   return { lines, error, isLoading };

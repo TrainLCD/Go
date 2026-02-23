@@ -1,27 +1,28 @@
 import useSWR from "swr";
-import { grpcClient } from "@/api/client";
-import { GetStationByLineIdRequest } from "@/gen/proto/stationapi_pb";
+import { graphqlClient } from "@/api/client";
+import { LINE_STATIONS } from "@/graphql/queries";
+import type { Station } from "@/types/stationapi";
 import { generateSWRKey } from "@/utils/generateSWRKey";
 import { groupStations } from "@/utils/groupStations";
 
 export const useFetchStationsByLineId = (lineId: number) => {
-  const req = new GetStationByLineIdRequest({
-    lineId,
-  });
-
-  const swrKey = generateSWRKey("getStationsByLineId", req);
+  const variables = { lineId };
+  const swrKey = generateSWRKey("stationsByLineId", variables);
 
   const {
     data: stations,
     error,
     isLoading,
   } = useSWR(swrKey, async () => {
-    if (!req.lineId) {
+    if (!lineId) {
       return [];
     }
 
-    const res = await grpcClient.getStationsByLineId(req);
-    return res.stations;
+    const res = await graphqlClient.request<{ stationsByLineId: Station[] }>(
+      LINE_STATIONS,
+      variables,
+    );
+    return res.stationsByLineId;
   });
 
   return { stations: groupStations(stations ?? []), error, isLoading };

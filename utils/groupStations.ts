@@ -1,5 +1,5 @@
 import { PREFECTURES } from "@/constants/prefecture";
-import { LineType, Station } from "@/gen/proto/stationapi_pb";
+import { LineType, type Station } from "@/types/stationapi";
 
 export const groupStations = (stations: Station[]): Station[] => {
   return stations
@@ -36,5 +36,5 @@ export const groupStations = (stations: Station[]): Station[] => {
 
       return { ...sta, name: `${sta.name}${suffix}` };
     })
-    .map((s) => new Station(s));
+    .map((s) => ({ ...s }));
 };

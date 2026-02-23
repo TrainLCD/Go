@@ -7,13 +7,9 @@
     "build": "next build",
     "start": "next start",
     "format": "biome format --write .",
-    "check": "biome check --write .",
-    "postinstall": "buf generate"
+    "check": "biome check --write ."
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^1.10.0",
-    "@connectrpc/connect": "^1.4.0",
-    "@connectrpc/connect-web": "^1.4.0",
     "@nextui-org/button": "^2.0.37",
     "@nextui-org/dropdown": "^2.1.29",
     "@nextui-org/input": "^2.2.4",
@@ -26,6 +22,8 @@
     "@types/react-scroll": "^1.8.10",
     "@uidotdev/usehooks": "^2.4.1",
     "framer-motion": "^11.2.10",
+    "graphql": "^16.9.0",
+    "graphql-request": "^7.1.2",
     "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
@@ -35,9 +33,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.4",
-    "@bufbuild/buf": "^1.32.2",
-    "@bufbuild/protoc-gen-es": "^1.10.0",
-    "@connectrpc/protoc-gen-connect-es": "^1.4.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

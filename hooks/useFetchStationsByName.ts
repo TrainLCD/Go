@@ -1,6 +1,7 @@
 import useSWR from "swr";
-import { grpcClient } from "@/api/client";
-import { GetStationsByNameRequest } from "@/gen/proto/stationapi_pb";
+import { graphqlClient } from "@/api/client";
+import { STATIONS_BY_NAME } from "@/graphql/queries";
+import type { Station } from "@/types/stationapi";
 import { generateSWRKey } from "@/utils/generateSWRKey";
 import { groupStations } from "@/utils/groupStations";
 
@@ -8,25 +9,23 @@ export const useFetchStationsByName = (
   stationName: string,
   fromStationGroupId?: number,
 ) => {
-  const req = new GetStationsByNameRequest({
-    stationName,
-    limit: 10,
-    fromStationGroupId,
-  });
-
-  const swrKey = generateSWRKey("getStationsByName", req);
+  const variables = { name: stationName, limit: 10, fromStationGroupId };
+  const swrKey = generateSWRKey("stationsByName", variables);
 
   const {
     data: stations,
     error,
     isLoading,
   } = useSWR(swrKey, async () => {
-    if (!req.stationName.length) {
+    if (!stationName.length) {
       return [];
     }
 
-    const res = await grpcClient.getStationsByName(req);
-    return res.stations;
+    const res = await graphqlClient.request<{ stationsByName: Station[] }>(
+      STATIONS_BY_NAME,
+      variables,
+    );
+    return res.stationsByName;
   });
 
   return { stations: groupStations(stations ?? []), error, isLoading };

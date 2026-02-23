@@ -7,7 +7,7 @@ import {
   ModalHeader,
 } from "@nextui-org/react";
 import { useMemo } from "react";
-import { Route, StopCondition, TrainType } from "@/gen/proto/stationapi_pb";
+import { StopCondition, type Route, type TrainType } from "@/types/stationapi";
 import dropEitherJunctionStation from "@/utils/dropJunctionStation";
 import { removeBrackets } from "@/utils/removeBracket";
 import { CloseSmallRoundedIcon } from "./icons/CloseSmallRounded";
@@ -25,12 +25,12 @@ type Props = {
 };
 
 const STOP_CONDITIONS = [
-  { id: 0, text: "停車", color: "#000000" },
-  { id: 1, text: "通過", color: "#99a1af" },
-  { id: 2, text: "一部通過", color: "#fcc800" },
-  { id: 5, text: "一部停車", color: "#fcc800" },
-  { id: 3, text: "平日停車", color: "#51a2ff" },
-  { id: 4, text: "休日停車", color: "#ff6467" },
+  { id: StopCondition.All, text: "停車", color: "#000000" },
+  { id: StopCondition.Not, text: "通過", color: "#99a1af" },
+  { id: StopCondition.Partial, text: "一部通過", color: "#fcc800" },
+  { id: StopCondition.PartialStop, text: "一部停車", color: "#fcc800" },
+  { id: StopCondition.Weekday, text: "平日停車", color: "#51a2ff" },
+  { id: StopCondition.Holiday, text: "休日停車", color: "#ff6467" },
 ] as const;
 
 export const RouteInfoModal = ({

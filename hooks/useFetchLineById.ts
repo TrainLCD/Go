@@ -1,14 +1,12 @@
 import useSWR from "swr";
-import { grpcClient } from "@/api/client";
-import { GetLineByIdRequest } from "@/gen/proto/stationapi_pb";
+import { graphqlClient } from "@/api/client";
+import { LINE_BY_ID } from "@/graphql/queries";
+import type { Line } from "@/types/stationapi";
 import { generateSWRKey } from "@/utils/generateSWRKey";
 
 export const useFetchLineById = (lineId: number | undefined) => {
-  const req = new GetLineByIdRequest({
-    lineId,
-  });
-
-  const swrKey = generateSWRKey("getLineById", req);
+  const variables = { id: lineId };
+  const swrKey = generateSWRKey("lineById", variables);
 
   const {
     data: line,
@@ -19,7 +17,10 @@ export const useFetchLineById = (lineId: number | undefined) => {
       return;
     }
 
-    const res = await grpcClient.getLineById(req);
+    const res = await graphqlClient.request<{ line: Line }>(
+      LINE_BY_ID,
+      variables,
+    );
     return res.line;
   });
 

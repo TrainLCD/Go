@@ -1,4 +1,4 @@
-import { Station } from "@/gen/proto/stationapi_pb";
+import type { Station } from "@/types/stationapi";
 
 // ２路線の接続駅は前の路線の最後の駅データを捨てる
 const dropEitherJunctionStation = (stations: Station[]): Station[] =>

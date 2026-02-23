@@ -10,7 +10,7 @@ import { ChevronRightIcon } from "@/components/icons/ChevronRight";
 import { MenuIcon } from "@/components/icons/Menu";
 import { MenuModal } from "@/components/MenuModal";
 import { RouteInfoModal } from "@/components/RouteInfoModal";
-import { Line, Route, Station } from "@/gen/proto/stationapi_pb";
+import type { Line, Route, Station } from "@/types/stationapi";
 import { useFetchLineById } from "@/hooks/useFetchLineById";
 import { useFetchLinesByName } from "@/hooks/useFetchLinesByName";
 import { useFetchRoutes } from "@/hooks/useFetchRoutes";
@@ -31,12 +31,12 @@ type Inputs = {
 };
 
 const STOP_CONDITIONS = [
-  { id: 0, text: "停車", color: "black" },
-  { id: 1, text: "通過", color: "gray-400" },
-  { id: 2, text: "一部通過", color: "yellow-400" },
-  { id: 5, text: "一部停車", color: "yellow-400" },
-  { id: 3, text: "平日停車", color: "blue-400" },
-  { id: 4, text: "休日停車", color: "red-400" },
+  { id: "All", text: "停車", color: "black" },
+  { id: "Not", text: "通過", color: "gray-400" },
+  { id: "Partial", text: "一部通過", color: "yellow-400" },
+  { id: "PartialStop", text: "一部停車", color: "yellow-400" },
+  { id: "Weekday", text: "平日停車", color: "blue-400" },
+  { id: "Holiday", text: "休日停車", color: "red-400" },
 ] as const;
 
 const Header = () => {
