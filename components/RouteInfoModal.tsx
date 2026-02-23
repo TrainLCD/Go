@@ -1,5 +1,3 @@
-import { Route, StopCondition, TrainType } from "@/gen/proto/stationapi_pb";
-import dropEitherJunctionStation from "@/utils/dropJunctionStation";
 import {
   Button,
   Modal,
@@ -8,9 +6,11 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
-import { CloseSmallRoundedIcon } from "./icons/CloseSmallRounded";
-import { removeBrackets } from "@/utils/removeBracket";
 import { useMemo } from "react";
+import { Route, StopCondition, TrainType } from "@/gen/proto/stationapi_pb";
+import dropEitherJunctionStation from "@/utils/dropJunctionStation";
+import { removeBrackets } from "@/utils/removeBracket";
+import { CloseSmallRoundedIcon } from "./icons/CloseSmallRounded";
 
 type Props = {
   isOpen: boolean;
@@ -43,9 +43,9 @@ export const RouteInfoModal = ({
   const uniqueLineStops = useMemo(
     () =>
       Array.from(
-        new Map(route?.stops.map((stop) => [stop.line?.id, stop])).values()
+        new Map(route?.stops.map((stop) => [stop.line?.id, stop])).values(),
       ),
-    [route?.stops]
+    [route?.stops],
   );
 
   return (
@@ -73,24 +73,25 @@ export const RouteInfoModal = ({
             <ModalBody>
               <h2 className="font-bold">停車駅: </h2>
               <ul className="flex flex-wrap gap-x-2 list-none pl-0">
-                {dropEitherJunctionStation(route?.stops ?? []).flatMap((stop) =>
-                  stop.stopCondition === StopCondition.All ? (
-                    <li key={stop.id} className="inline">
-                      {stop.name}
-                    </li>
-                  ) : (
-                    <li
-                      key={stop.id}
-                      className="inline"
-                      style={{
-                        color: STOP_CONDITIONS.find(
-                          (cnd) => cnd.id === stop.stopCondition
-                        )?.color,
-                      }}
-                    >
-                      {stop.name}
-                    </li>
-                  )
+                {dropEitherJunctionStation(route?.stops ?? []).flatMap(
+                  (stop) =>
+                    stop.stopCondition === StopCondition.All ? (
+                      <li key={stop.id} className="inline">
+                        {stop.name}
+                      </li>
+                    ) : (
+                      <li
+                        key={stop.id}
+                        className="inline"
+                        style={{
+                          color: STOP_CONDITIONS.find(
+                            (cnd) => cnd.id === stop.stopCondition,
+                          )?.color,
+                        }}
+                      >
+                        {stop.name}
+                      </li>
+                    ),
                 )}
               </ul>
 
@@ -116,7 +117,7 @@ export const RouteInfoModal = ({
                       style={{ color: stop.trainType?.color }}
                     >
                       {removeBrackets(
-                        stop.trainType?.name ?? "普通または各駅停車"
+                        stop.trainType?.name ?? "普通または各駅停車",
                       )}
                     </span>
                   </p>

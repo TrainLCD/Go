@@ -1,12 +1,12 @@
+import useSWR from "swr";
 import { grpcClient } from "@/api/client";
 import { GetStationsByNameRequest } from "@/gen/proto/stationapi_pb";
 import { generateSWRKey } from "@/utils/generateSWRKey";
 import { groupStations } from "@/utils/groupStations";
-import useSWR from "swr";
 
 export const useFetchStationsByName = (
   stationName: string,
-  fromStationGroupId?: number
+  fromStationGroupId?: number,
 ) => {
   const req = new GetStationsByNameRequest({
     stationName,

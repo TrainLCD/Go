@@ -15,12 +15,12 @@ export const useParams = () => {
       const query = search ? `?${search}` : "";
       router.push(`${pathname}${query}`);
     },
-    [pathname, router, searchParams]
+    [pathname, router, searchParams],
   );
 
   const get = useCallback(
     (key: string) => searchParams.get(key),
-    [searchParams]
+    [searchParams],
   );
 
   const remove = useCallback(
@@ -31,7 +31,7 @@ export const useParams = () => {
       const query = search ? `?${search}` : "";
       router.replace(`${pathname}${query}`);
     },
-    [pathname, router, searchParams]
+    [pathname, router, searchParams],
   );
 
   const clear = useCallback(() => {

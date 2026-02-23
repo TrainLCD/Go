@@ -1,7 +1,7 @@
+import useSWR from "swr";
 import { grpcClient } from "@/api/client";
 import { GetLinesByNameRequest } from "@/gen/proto/stationapi_pb";
 import { generateSWRKey } from "@/utils/generateSWRKey";
-import useSWR from "swr";
 
 export const useFetchLinesByName = (lineIdOrName: string, limit = 10) => {
   const req = new GetLinesByNameRequest({

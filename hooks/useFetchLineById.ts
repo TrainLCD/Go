@@ -1,7 +1,7 @@
+import useSWR from "swr";
 import { grpcClient } from "@/api/client";
 import { GetLineByIdRequest } from "@/gen/proto/stationapi_pb";
 import { generateSWRKey } from "@/utils/generateSWRKey";
-import useSWR from "swr";
 
 export const useFetchLineById = (lineId: number | undefined) => {
   const req = new GetLineByIdRequest({

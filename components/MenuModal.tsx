@@ -1,4 +1,5 @@
 import { Button } from "@nextui-org/button";
+import { Listbox, ListboxItem, ListboxSection } from "@nextui-org/listbox";
 import {
   Modal,
   ModalBody,
@@ -6,10 +7,9 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/modal";
+import { BugIcon } from "./icons/Bug";
 import { RailIcon } from "./icons/Rail";
 import { StationIcon } from "./icons/Station";
-import { Listbox, ListboxItem, ListboxSection } from "@nextui-org/listbox";
-import { BugIcon } from "./icons/Bug";
 
 type Props = {
   isOpen: boolean;
