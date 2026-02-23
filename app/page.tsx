@@ -263,7 +263,7 @@ const RoutesListBox = ({
       const typeIds = targetRoute?.stops.map((s) => s.trainType?.typeId);
       return Array.from(new Set(typeIds)).length > 1;
     },
-    [routes]
+    [routes],
   );
 
   return (
@@ -313,7 +313,7 @@ const RoutesListBox = ({
             &nbsp;
             {removeBrackets(
               route.stops.find((stop) => stop.groupId === fromStationId)
-                ?.trainType?.name ?? ""
+                ?.trainType?.name ?? "",
             )}
           </p>
           <div className="mt-1">
@@ -323,8 +323,8 @@ const RoutesListBox = ({
                   route.stops.map((stop) => [
                     `${stop.line?.id}:${stop.line?.color}`,
                     stop,
-                  ])
-                ).values()
+                  ]),
+                ).values(),
               )
                 .filter((stop, idx, arr) => {
                   const lineColors = arr.map((s) => s.line?.color);
@@ -513,7 +513,7 @@ export default function Home() {
     error: fetchFromStationsError,
     isLoading: isFromStationsLoading,
   } = useFetchStationsByName(
-    debouncedFromStationName?.replace(/駅$/, "")?.trim()
+    debouncedFromStationName?.replace(/駅$/, "")?.trim(),
   );
 
   const {
@@ -534,7 +534,7 @@ export default function Home() {
     isLoading: isToStationsLoading,
   } = useFetchStationsByName(
     debouncedToStationName?.replace(/駅$/, "")?.trim(),
-    Number(selectedFromStationId)
+    Number(selectedFromStationId),
   );
 
   const debouncedLineIdOrName = useDebounce(lineIdOrName, DEBOUNCE_DELAY);
@@ -571,7 +571,7 @@ export default function Home() {
     error: routesLoadingError,
   } = useFetchRoutes(
     Number(selectedFromStationId),
-    Number(selectedToStationId)
+    Number(selectedToStationId),
   );
 
   const {
@@ -615,22 +615,22 @@ export default function Home() {
       });
       onRouteInfoOpenChange();
     },
-    [onRouteInfoOpenChange, params, setValue]
+    [onRouteInfoOpenChange, params, setValue],
   );
 
   const handleStationClick = useCallback((stationId: number) => () => {}, []);
 
   const route = useMemo(
     () => routes?.find((r) => r.id === Number(selectedRouteId)),
-    [routes, selectedRouteId]
+    [routes, selectedRouteId],
   );
 
   const fromStop = useMemo(
     () =>
       route?.stops.find(
-        (stop) => stop.groupId === Number(selectedFromStationId)
+        (stop) => stop.groupId === Number(selectedFromStationId),
       ),
-    [route?.stops, selectedFromStationId]
+    [route?.stops, selectedFromStationId],
   );
 
   const modalContent = useMemo(
@@ -638,53 +638,54 @@ export default function Home() {
       id: route?.id,
       lineName: fromStop?.line?.nameShort,
       trainType: route?.stops.find(
-        (stop) => stop.trainType?.groupId === Number(selectedRouteId)
+        (stop) => stop.trainType?.groupId === Number(selectedRouteId),
       )?.trainType,
     }),
-    [fromStop?.line?.nameShort, route?.id, route?.stops, selectedRouteId]
+    [fromStop?.line?.nameShort, route?.id, route?.stops, selectedRouteId],
   );
 
   const fromStation = useMemo(
     () =>
       fromStationsByGroupId?.find(
-        (s) => s.groupId === Number(selectedFromStationId)
+        (s) => s.groupId === Number(selectedFromStationId),
       ),
-    [fromStationsByGroupId, selectedFromStationId]
+    [fromStationsByGroupId, selectedFromStationId],
   );
   const toStation = useMemo(
     () =>
       toStationsByGroupId?.find(
-        (s) => s.groupId === Number(selectedToStationId)
+        (s) => s.groupId === Number(selectedToStationId),
       ),
-    [selectedToStationId, toStationsByGroupId]
+    [selectedToStationId, toStationsByGroupId],
   );
 
   const handleLaunchApp = useCallback(() => {
     const appScheme = devMode ? "trainlcd-canary://" : "trainlcd://";
 
     const lineGroupId = route?.stops.find(
-      (stop) => stop.trainType?.groupId === Number(selectedRouteId)
+      (stop) => stop.trainType?.groupId === Number(selectedRouteId),
     )?.trainType?.groupId;
 
     const direction =
       (route?.stops ?? []).findIndex(
-        (s) => s.groupId === fromStation?.groupId
+        (s) => s.groupId === fromStation?.groupId,
       ) <
       (route?.stops ?? []).findIndex((s) => s.groupId === toStation?.groupId)
-        ? 0
-        : 1;
+        ? 1
+        : 0;
 
-    if (lineGroupId) {
+    const lineId = fromStop?.line?.id;
+
+    if (lineId && lineGroupId) {
       window.open(
-        `${appScheme}route?sgid=${fromStation?.groupId}&lgid=${lineGroupId}&dir=${direction}`
+        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}&lgid=${lineGroupId}&dir=${direction}`,
       );
       return;
     }
 
-    const lineId = fromStop?.line?.id;
     if (lineId) {
       window.open(
-        `${appScheme}route?sgid=${fromStation?.groupId}&lid=${lineId}&dir=${direction}`
+        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}&dir=${direction}`,
       );
     }
   }, [
@@ -705,7 +706,7 @@ export default function Home() {
       }
       params.update({ dev: devMode ? "false" : "true" });
     },
-    [devMode, onMenuOpenChange, params]
+    [devMode, onMenuOpenChange, params],
   );
 
   return (
@@ -749,7 +750,7 @@ export default function Home() {
             <LineListBox
               loading={isSingleLineLoading || isLinesLoading}
               value={selectedFromStationId}
-              lines={singleLine ? [singleLine] : lines ?? []}
+              lines={singleLine ? [singleLine] : (lines ?? [])}
               isDirty={dirtyFields.lineIdOrName ?? false}
               onSelectionChange={(keys) => {
                 const keysArr = Array.from(keys as Set<string>);
