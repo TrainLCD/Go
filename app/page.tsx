@@ -684,13 +684,13 @@ export default function Home() {
       (stop) => stop.trainType?.groupId === Number(selectedRouteId),
     )?.trainType?.groupId;
 
-    const direction =
-      (route?.stops ?? []).findIndex(
-        (s) => s.groupId === fromStation?.groupId,
-      ) <
-      (route?.stops ?? []).findIndex((s) => s.groupId === toStation?.groupId)
-        ? 1
-        : 0;
+    const fromIndex = (route?.stops ?? []).findIndex(
+      (s) => s.groupId === Number(selectedFromStationId),
+    );
+    const toIndex = (route?.stops ?? []).findIndex(
+      (s) => s.groupId === Number(selectedToStationId),
+    );
+    const direction = fromIndex < toIndex ? 0 : 1;
 
     const lineId = fromStop?.line?.id;
 
