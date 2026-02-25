@@ -262,7 +262,7 @@ const RoutesListBox = ({
       const targetRoute = routes?.find((r) => r.id === routeId);
       const typeIds = targetRoute?.stops
         .map((s) => s.trainType?.typeId)
-        .filter((id) => id != null);
+        .filter((id): id is number => id != null);
       return new Set(typeIds).size > 1;
     },
     [routes],
@@ -666,7 +666,8 @@ export default function Home() {
       const stop = routes
         ?.flatMap((r) => r.stops)
         .find((s) => s.groupId === groupId);
-      return stop ? `${stop.name}駅` : undefined;
+      if (!stop) return undefined;
+      return stop.name.endsWith("駅") ? stop.name : `${stop.name}駅`;
     },
     [routes],
   );
@@ -694,20 +695,23 @@ export default function Home() {
     const toIndex = (route?.stops ?? []).findIndex(
       (s) => s.groupId === Number(selectedToStationId),
     );
+    if (fromIndex === -1 || toIndex === -1) return;
     const direction = fromIndex < toIndex ? 0 : 1;
 
     const lineId = fromStop?.line?.id;
+    const sgid = fromStation?.groupId;
+    if (!sgid) return;
 
     if (lineId && lineGroupId) {
       window.open(
-        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}&lgid=${lineGroupId}&dir=${direction}`,
+        `${appScheme}?sgid=${sgid}&lid=${lineId}&lgid=${lineGroupId}&dir=${direction}`,
       );
       return;
     }
 
     if (lineId) {
       window.open(
-        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}&dir=${direction}`,
+        `${appScheme}?sgid=${sgid}&lid=${lineId}&dir=${direction}`,
       );
     }
   }, [
@@ -715,8 +719,9 @@ export default function Home() {
     fromStation?.groupId,
     fromStop?.line?.id,
     route?.stops,
+    selectedFromStationId,
+    selectedToStationId,
     selectedRouteId,
-    toStation?.groupId,
   ]);
 
   const handleUpdateSearchMode = useCallback(
