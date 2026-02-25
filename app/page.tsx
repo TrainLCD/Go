@@ -260,8 +260,10 @@ const RoutesListBox = ({
   const isHasTypeChange = useCallback(
     (routeId: number) => {
       const targetRoute = routes?.find((r) => r.id === routeId);
-      const typeIds = targetRoute?.stops.map((s) => s.trainType?.typeId);
-      return Array.from(new Set(typeIds)).length > 1;
+      const typeIds = targetRoute?.stops
+        .map((s) => s.trainType?.typeId)
+        .filter((id) => id != null);
+      return new Set(typeIds).size > 1;
     },
     [routes],
   );
