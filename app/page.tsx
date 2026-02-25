@@ -299,9 +299,7 @@ const RoutesListBox = ({
           <p className="font-medium opacity-90">
             {tt.line?.nameShort ?? ""}
             &nbsp;
-            <span style={{ color: tt.color }}>
-              {removeBrackets(tt.name)}
-            </span>
+            {removeBrackets(tt.name)}
           </p>
           <div className="mt-1">
             <div className="flex">
