@@ -10,7 +10,6 @@ import { ChevronRightIcon } from "@/components/icons/ChevronRight";
 import { MenuIcon } from "@/components/icons/Menu";
 import { MenuModal } from "@/components/MenuModal";
 import { RouteInfoModal } from "@/components/RouteInfoModal";
-import type { Line, Route, Station } from "@/types/stationapi";
 import { useFetchLineById } from "@/hooks/useFetchLineById";
 import { useFetchLinesByName } from "@/hooks/useFetchLinesByName";
 import { useFetchRoutes } from "@/hooks/useFetchRoutes";
@@ -18,6 +17,7 @@ import { useFetchStationsByGroupId } from "@/hooks/useFetchStationsByGroupId";
 import { useFetchStationsByLineId } from "@/hooks/useFetchStationsByLineId";
 import { useFetchStationsByName } from "@/hooks/useFetchStationsByName";
 import { useParams } from "@/hooks/useParams";
+import type { Line, Route, Station } from "@/types/stationapi";
 import { removeBrackets } from "@/utils/removeBracket";
 
 type Inputs = {
@@ -129,11 +129,11 @@ const SelectStationListBox = ({
             textValue={value}
           >
             <p className="font-medium opacity-90">{sta.name}</p>
-            <div className="flex items-center mt-1 h-4">
+            <div className="flex flex-wrap gap-1 mt-1">
               {sta.lines.map((line) => (
                 <div
                   key={line.id}
-                  className="w-2 h-2 rounded-full ml-1 first:ml-0"
+                  className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ background: line.color }}
                 />
               ))}
@@ -227,10 +227,10 @@ const LineListBox = ({
             textValue={value}
           >
             <p className="font-medium opacity-90">{l.nameShort}</p>
-            <div className="flex items-center mt-1 h-4">
+            <div className="flex flex-wrap gap-1 mt-1">
               <div
                 key={l.id}
-                className="w-2 h-2 rounded-full ml-1 first:ml-0"
+                className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ background: l.color }}
               />
             </div>
@@ -317,7 +317,7 @@ const RoutesListBox = ({
             )}
           </p>
           <div className="mt-1">
-            <div className="flex">
+            <div className="flex flex-wrap gap-1">
               {Array.from(
                 new Map(
                   route.stops.map((stop) => [
@@ -336,7 +336,7 @@ const RoutesListBox = ({
                 .map((stop) => (
                   <div
                     key={`${stop.line?.id}:${stop.line?.color}`}
-                    className="w-2 h-2 rounded-full ml-1"
+                    className="w-2 h-2 rounded-full flex-shrink-0"
                     style={{ background: stop.line?.color }}
                   />
                 ))}
@@ -406,7 +406,7 @@ const StationListBox = ({
           textValue={sta.id.toString()}
         >
           <p className="font-medium opacity-90">{sta.name ?? ""}</p>
-          <div className="mt-1 flex">
+          <div className="mt-1 flex flex-wrap gap-1">
             {sta.lines
               .filter((stop, idx, arr) => {
                 const lineColors = arr.map((l) => l?.color);
@@ -418,7 +418,7 @@ const StationListBox = ({
               .map((l) => (
                 <div
                   key={`${l.id}:${l.color}`}
-                  className="w-2 h-2 rounded-full ml-1"
+                  className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ background: l.color }}
                 />
               ))}

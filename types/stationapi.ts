@@ -146,7 +146,12 @@ export interface Route {
   stops: Station[];
 }
 
-export interface RoutesResponse {
-  routes: Route[];
+export interface RouteTypeTrainType {
+  id: number;
+  groupId: number;
+}
+
+export interface RouteTypesResponse {
+  trainTypes: RouteTypeTrainType[];
   nextPageToken: string;
 }
