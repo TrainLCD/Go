@@ -10,7 +10,6 @@ import { ChevronRightIcon } from "@/components/icons/ChevronRight";
 import { MenuIcon } from "@/components/icons/Menu";
 import { MenuModal } from "@/components/MenuModal";
 import { RouteInfoModal } from "@/components/RouteInfoModal";
-import type { Line, Route, Station } from "@/types/stationapi";
 import { useFetchLineById } from "@/hooks/useFetchLineById";
 import { useFetchLinesByName } from "@/hooks/useFetchLinesByName";
 import { useFetchRoutes } from "@/hooks/useFetchRoutes";
@@ -18,6 +17,7 @@ import { useFetchStationsByGroupId } from "@/hooks/useFetchStationsByGroupId";
 import { useFetchStationsByLineId } from "@/hooks/useFetchStationsByLineId";
 import { useFetchStationsByName } from "@/hooks/useFetchStationsByName";
 import { useParams } from "@/hooks/useParams";
+import type { Line, Route, Station } from "@/types/stationapi";
 import { removeBrackets } from "@/utils/removeBracket";
 
 type Inputs = {
@@ -129,11 +129,11 @@ const SelectStationListBox = ({
             textValue={value}
           >
             <p className="font-medium opacity-90">{sta.name}</p>
-            <div className="flex items-center mt-1 h-4">
+            <div className="flex flex-wrap gap-1 mt-1">
               {sta.lines.map((line) => (
                 <div
                   key={line.id}
-                  className="w-2 h-2 rounded-full ml-1 first:ml-0"
+                  className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ background: line.color }}
                 />
               ))}
@@ -227,10 +227,10 @@ const LineListBox = ({
             textValue={value}
           >
             <p className="font-medium opacity-90">{l.nameShort}</p>
-            <div className="flex items-center mt-1 h-4">
+            <div className="flex flex-wrap gap-1 mt-1">
               <div
                 key={l.id}
-                className="w-2 h-2 rounded-full ml-1 first:ml-0"
+                className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ background: l.color }}
               />
             </div>
@@ -260,8 +260,10 @@ const RoutesListBox = ({
   const isHasTypeChange = useCallback(
     (routeId: number) => {
       const targetRoute = routes?.find((r) => r.id === routeId);
-      const typeIds = targetRoute?.stops.map((s) => s.trainType?.typeId);
-      return Array.from(new Set(typeIds)).length > 1;
+      const typeIds = targetRoute?.stops
+        .map((s) => s.trainType?.typeId)
+        .filter((id): id is number => id != null);
+      return new Set(typeIds).size > 1;
     },
     [routes],
   );
@@ -317,7 +319,7 @@ const RoutesListBox = ({
             )}
           </p>
           <div className="mt-1">
-            <div className="flex">
+            <div className="flex flex-wrap gap-1">
               {Array.from(
                 new Map(
                   route.stops.map((stop) => [
@@ -336,7 +338,7 @@ const RoutesListBox = ({
                 .map((stop) => (
                   <div
                     key={`${stop.line?.id}:${stop.line?.color}`}
-                    className="w-2 h-2 rounded-full ml-1"
+                    className="w-2 h-2 rounded-full flex-shrink-0"
                     style={{ background: stop.line?.color }}
                   />
                 ))}
@@ -406,7 +408,7 @@ const StationListBox = ({
           textValue={sta.id.toString()}
         >
           <p className="font-medium opacity-90">{sta.name ?? ""}</p>
-          <div className="mt-1 flex">
+          <div className="mt-1 flex flex-wrap gap-1">
             {sta.lines
               .filter((stop, idx, arr) => {
                 const lineColors = arr.map((l) => l?.color);
@@ -418,7 +420,7 @@ const StationListBox = ({
               .map((l) => (
                 <div
                   key={`${l.id}:${l.color}`}
-                  className="w-2 h-2 rounded-full ml-1"
+                  className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ background: l.color }}
                 />
               ))}
@@ -519,12 +521,10 @@ export default function Home() {
   const {
     stations: fromStationsByGroupId = [],
     error: fetchFromStationsByGroupIdError,
-    isLoading: isFromStationsByGroupIdLoading,
   } = useFetchStationsByGroupId(Number(params.get("fsid")));
   const {
     stations: toStationsByGroupId = [],
     error: fetchToStationsByGroupIdError,
-    isLoading: isToStationsByGroupIdLoading,
   } = useFetchStationsByGroupId(Number(params.get("tsid")));
 
   const debouncedToStationName = useDebounce(toStationName, DEBOUNCE_DELAY);
@@ -659,6 +659,29 @@ export default function Home() {
     [selectedToStationId, toStationsByGroupId],
   );
 
+  const getStationDisplayName = useCallback(
+    (stationName: string | undefined, stationGroupId: string) => {
+      if (stationName) return stationName;
+      const groupId = Number(stationGroupId);
+      const stop = routes
+        ?.flatMap((r) => r.stops)
+        .find((s) => s.groupId === groupId);
+      if (!stop) return undefined;
+      return stop.name.endsWith("駅") ? stop.name : `${stop.name}駅`;
+    },
+    [routes],
+  );
+
+  const fromStationDisplayName = useMemo(
+    () => getStationDisplayName(fromStation?.name, selectedFromStationId),
+    [getStationDisplayName, fromStation?.name, selectedFromStationId],
+  );
+
+  const toStationDisplayName = useMemo(
+    () => getStationDisplayName(toStation?.name, selectedToStationId),
+    [getStationDisplayName, toStation?.name, selectedToStationId],
+  );
+
   const handleLaunchApp = useCallback(() => {
     const appScheme = devMode ? "trainlcd-canary://" : "trainlcd://";
 
@@ -666,26 +689,29 @@ export default function Home() {
       (stop) => stop.trainType?.groupId === Number(selectedRouteId),
     )?.trainType?.groupId;
 
-    const direction =
-      (route?.stops ?? []).findIndex(
-        (s) => s.groupId === fromStation?.groupId,
-      ) <
-      (route?.stops ?? []).findIndex((s) => s.groupId === toStation?.groupId)
-        ? 1
-        : 0;
+    const fromIndex = (route?.stops ?? []).findIndex(
+      (s) => s.groupId === Number(selectedFromStationId),
+    );
+    const toIndex = (route?.stops ?? []).findIndex(
+      (s) => s.groupId === Number(selectedToStationId),
+    );
+    if (fromIndex === -1 || toIndex === -1) return;
+    const direction = fromIndex < toIndex ? 0 : 1;
 
     const lineId = fromStop?.line?.id;
+    const sgid = fromStation?.groupId;
+    if (!sgid) return;
 
     if (lineId && lineGroupId) {
       window.open(
-        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}&lgid=${lineGroupId}&dir=${direction}`,
+        `${appScheme}?sgid=${sgid}&lid=${lineId}&lgid=${lineGroupId}&dir=${direction}`,
       );
       return;
     }
 
     if (lineId) {
       window.open(
-        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}&dir=${direction}`,
+        `${appScheme}?sgid=${sgid}&lid=${lineId}&dir=${direction}`,
       );
     }
   }, [
@@ -693,8 +719,9 @@ export default function Home() {
     fromStation?.groupId,
     fromStop?.line?.id,
     route?.stops,
+    selectedFromStationId,
+    selectedToStationId,
     selectedRouteId,
-    toStation?.groupId,
   ]);
 
   const handleUpdateSearchMode = useCallback(
@@ -768,22 +795,17 @@ export default function Home() {
             </p>
 
             {params.get("mode") !== "line" &&
-            (isFromStationsLoading ||
-              isToStationsLoading ||
-              !fromStation ||
-              !toStation) ? (
+            !fromStationDisplayName &&
+            !toStationDisplayName ? (
               <Skeleton className="w-32 h-4 mt-1 mb-4 lg:mb-8 self-center rounded-md" />
             ) : null}
 
             {params.get("mode") !== "line" &&
-            !isFromStationsLoading &&
-            !isToStationsLoading &&
-            fromStation &&
-            toStation ? (
+            (fromStationDisplayName || toStationDisplayName) ? (
               <p className="font-medium opacity-50 mt-1 mb-4 lg:mb-8 text-center text-xs">
-                {fromStation?.name}
+                {fromStationDisplayName ?? "..."}
                 &nbsp;-&nbsp;
-                {toStation?.name}
+                {toStationDisplayName ?? "..."}
               </p>
             ) : null}
 
@@ -804,27 +826,25 @@ export default function Home() {
               <Skeleton className="w-32 h-4 mt-1 mb-4 lg:mb-8 self-center rounded-md" />
             ) : null}
 
-            <>
-              {selectedLineId ? (
-                <StationListBox
-                  isLoading={isStationsLoading}
-                  stations={stationsByLineId}
-                  onTrainTypeClick={handleStationClick}
-                  error={fetchStationsError}
-                />
-              ) : (
-                <RoutesListBox
-                  isLoading={isRoutesLoading}
-                  fromStationId={Number(selectedFromStationId)}
-                  routes={routes ?? []}
-                  onStationClick={handleTrainTypeClick}
-                  error={routesLoadingError}
-                />
-              )}
-              <p className="font-medium my-2 text-xs opacity-50">
-                TrainLCDアプリで利用可能なデータであるため、実際の情報とは異なる場合があります。
-              </p>
-            </>
+            {selectedLineId ? (
+              <StationListBox
+                isLoading={isStationsLoading}
+                stations={stationsByLineId}
+                onTrainTypeClick={handleStationClick}
+                error={fetchStationsError}
+              />
+            ) : (
+              <RoutesListBox
+                isLoading={isRoutesLoading}
+                fromStationId={Number(selectedFromStationId)}
+                routes={routes ?? []}
+                onStationClick={handleTrainTypeClick}
+                error={routesLoadingError}
+              />
+            )}
+            <p className="font-medium my-2 text-xs opacity-50">
+              TrainLCDアプリで利用可能なデータであるため、実際の情報とは異なる場合があります。
+            </p>
           </div>
         )}
 

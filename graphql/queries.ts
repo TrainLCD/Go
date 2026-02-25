@@ -219,17 +219,21 @@ export const LINES_BY_NAME = gql`
   }
 `;
 
-export const ROUTES = gql`
-  ${STATION_NESTED_FRAGMENT}
-  query Routes($fromStationGroupId: Int!, $toStationGroupId: Int!) {
-    routes(fromStationGroupId: $fromStationGroupId, toStationGroupId: $toStationGroupId) {
-      routes {
+export const ROUTE_TYPES = gql`
+  query RouteTypes($fromStationGroupId: Int!, $toStationGroupId: Int!) {
+    routeTypes(fromStationGroupId: $fromStationGroupId, toStationGroupId: $toStationGroupId) {
+      trainTypes {
         id
-        stops {
-          ...StationNestedFields
-        }
+        groupId
       }
       nextPageToken
     }
+  }
+`;
+
+export const buildLineGroupStationsQuery = (groupIds: number[]) => gql`
+  ${STATION_FRAGMENT}
+  query LineGroupStationsBatch {
+    ${groupIds.map((id) => `g_${id}: lineGroupStations(lineGroupId: ${id}) { ...StationFields }`).join("\n    ")}
   }
 `;
