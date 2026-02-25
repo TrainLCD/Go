@@ -233,3 +233,88 @@ export const ROUTES = gql`
     }
   }
 `;
+
+export const ROUTE_TYPES = gql`
+  query RouteTypes($fromStationGroupId: Int!, $toStationGroupId: Int!) {
+    routeTypes(fromStationGroupId: $fromStationGroupId, toStationGroupId: $toStationGroupId) {
+      trainTypes {
+        id
+        typeId
+        groupId
+        name
+        nameKatakana
+        nameRoman
+        nameChinese
+        nameKorean
+        color
+        lines {
+          id
+          nameShort
+          nameKatakana
+          nameFull
+          nameRoman
+          nameChinese
+          nameKorean
+          color
+          lineType
+          lineSymbols {
+            symbol
+            color
+            shape
+          }
+          status
+          company {
+            id
+            railroadId
+            nameShort
+            nameKatakana
+            nameFull
+            nameEnglishShort
+            nameEnglishFull
+            url
+            type
+            status
+            name
+          }
+          averageDistance
+          transportType
+        }
+        line {
+          id
+          nameShort
+          nameKatakana
+          nameFull
+          nameRoman
+          nameChinese
+          nameKorean
+          color
+          lineType
+          lineSymbols {
+            symbol
+            color
+            shape
+          }
+          status
+          company {
+            id
+            railroadId
+            nameShort
+            nameKatakana
+            nameFull
+            nameEnglishShort
+            nameEnglishFull
+            url
+            type
+            status
+            name
+          }
+          averageDistance
+          transportType
+        }
+        direction
+        kind
+      }
+      nextPageToken
+    }
+  }
+`;

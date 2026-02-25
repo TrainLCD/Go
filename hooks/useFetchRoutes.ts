@@ -1,33 +1,18 @@
 import useSWR from "swr";
 import { graphqlClient } from "@/api/client";
-import { ROUTES } from "@/graphql/queries";
-import type { Route, RoutesResponse } from "@/types/stationapi";
+import { ROUTE_TYPES } from "@/graphql/queries";
+import type { RouteTypesResponse, TrainType } from "@/types/stationapi";
 import { generateSWRKey } from "@/utils/generateSWRKey";
-
-const getRouteFingerprint = (route: Route): string =>
-  route.stops.map((stop) => stop.id).join("|");
-
-const deduplicateRoutes = (routes: Route[]): Route[] => {
-  const seen = new Set<string>();
-  return routes.filter((route) => {
-    const fingerprint = getRouteFingerprint(route);
-    if (seen.has(fingerprint)) {
-      return false;
-    }
-    seen.add(fingerprint);
-    return true;
-  });
-};
 
 export const useFetchRoutes = (
   fromStationGroupId: number,
   toStationGroupId: number,
 ) => {
   const variables = { fromStationGroupId, toStationGroupId };
-  const swrKey = generateSWRKey("routes", variables);
+  const swrKey = generateSWRKey("routeTypes", variables);
 
   const {
-    data: routes,
+    data: trainTypes,
     error,
     isLoading,
   } = useSWR(swrKey, async () => {
@@ -35,12 +20,11 @@ export const useFetchRoutes = (
       return [];
     }
 
-    const res = await graphqlClient.request<{ routes: RoutesResponse }>(
-      ROUTES,
-      variables,
-    );
-    return deduplicateRoutes(res.routes.routes);
+    const res = await graphqlClient.request<{
+      routeTypes: RouteTypesResponse;
+    }>(ROUTE_TYPES, variables);
+    return res.routeTypes.trainTypes;
   });
 
-  return { routes, error, isLoading };
+  return { trainTypes, error, isLoading };
 };

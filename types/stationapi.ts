@@ -150,3 +150,8 @@ export interface RoutesResponse {
   routes: Route[];
   nextPageToken: string;
 }
+
+export interface RouteTypesResponse {
+  trainTypes: TrainType[];
+  nextPageToken: string;
+}

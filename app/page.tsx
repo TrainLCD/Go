@@ -10,7 +10,7 @@ import { ChevronRightIcon } from "@/components/icons/ChevronRight";
 import { MenuIcon } from "@/components/icons/Menu";
 import { MenuModal } from "@/components/MenuModal";
 import { RouteInfoModal } from "@/components/RouteInfoModal";
-import type { Line, Route, Station } from "@/types/stationapi";
+import type { Line, Station, TrainType } from "@/types/stationapi";
 import { useFetchLineById } from "@/hooks/useFetchLineById";
 import { useFetchLinesByName } from "@/hooks/useFetchLinesByName";
 import { useFetchRoutes } from "@/hooks/useFetchRoutes";
@@ -246,26 +246,15 @@ const LineListBox = ({
 
 const RoutesListBox = ({
   isLoading,
-  fromStationId,
-  routes,
-  onStationClick,
+  trainTypes,
+  onTrainTypeClick,
   error,
 }: {
   isLoading: boolean;
-  fromStationId: number;
-  routes: Route[];
-  onStationClick: (routeId: number) => () => void;
+  trainTypes: TrainType[];
+  onTrainTypeClick: (trainTypeId: number) => () => void;
   error: Error;
 }) => {
-  const isHasTypeChange = useCallback(
-    (routeId: number) => {
-      const targetRoute = routes?.find((r) => r.id === routeId);
-      const typeIds = targetRoute?.stops.map((s) => s.trainType?.typeId);
-      return Array.from(new Set(typeIds)).length > 1;
-    },
-    [routes],
-  );
-
   return (
     <Listbox
       className="w-full rounded-xl shadow bg-white overflow-y-scroll px-4"
@@ -295,57 +284,35 @@ const RoutesListBox = ({
         )
       }
     >
-      {(routes ?? []).map((route) => (
+      {(trainTypes ?? []).map((tt) => (
         <ListboxItem
           className="p-4"
-          key={route.id}
-          onClick={onStationClick(route.id)}
+          key={tt.id}
+          onClick={onTrainTypeClick(tt.id)}
           endContent={
             <div className="flex items-center">
               <ChevronRightIcon className="text-2xl text-default-400 transition-colors flex-shrink-0 cursor-pointer" />
             </div>
           }
-          textValue={fromStationId.toString()}
+          textValue={tt.id.toString()}
         >
           <p className="font-medium opacity-90">
-            {route.stops.find((stop) => stop.groupId === fromStationId)?.line
-              ?.nameShort ?? ""}
+            {tt.line?.nameShort ?? ""}
             &nbsp;
-            {removeBrackets(
-              route.stops.find((stop) => stop.groupId === fromStationId)
-                ?.trainType?.name ?? "",
-            )}
+            <span style={{ color: tt.color }}>
+              {removeBrackets(tt.name)}
+            </span>
           </p>
           <div className="mt-1">
             <div className="flex">
-              {Array.from(
-                new Map(
-                  route.stops.map((stop) => [
-                    `${stop.line?.id}:${stop.line?.color}`,
-                    stop,
-                  ]),
-                ).values(),
-              )
-                .filter((stop, idx, arr) => {
-                  const lineColors = arr.map((s) => s.line?.color);
-                  if (lineColors.length === 1) {
-                    return true;
-                  }
-                  return lineColors.includes(stop.line?.color);
-                })
-                .map((stop) => (
-                  <div
-                    key={`${stop.line?.id}:${stop.line?.color}`}
-                    className="w-2 h-2 rounded-full ml-1"
-                    style={{ background: stop.line?.color }}
-                  />
-                ))}
+              {tt.lines.map((line) => (
+                <div
+                  key={line.id}
+                  className="w-2 h-2 rounded-full ml-1"
+                  style={{ background: line.color }}
+                />
+              ))}
             </div>
-            <p className="text-xs opacity-50 mt-1">
-              {isHasTypeChange(route.id) ? "種別変更あり " : ""}
-              {route.stops[0]?.name}駅から
-              {route.stops[route.stops.length - 1]?.name}駅まで
-            </p>
           </div>
         </ListboxItem>
       ))}
@@ -566,7 +533,7 @@ export default function Home() {
   } = useFetchLinesByName(debouncedLineIdOrName);
 
   const {
-    routes,
+    trainTypes,
     isLoading: isRoutesLoading,
     error: routesLoadingError,
   } = useFetchRoutes(
@@ -608,10 +575,10 @@ export default function Home() {
   }, [screenMode, searchMode]);
 
   const handleTrainTypeClick = useCallback(
-    (routeId: number) => () => {
-      setValue("selectedRouteId", routeId.toString());
+    (trainTypeId: number) => () => {
+      setValue("selectedRouteId", trainTypeId.toString());
       params.update({
-        rid: routeId.toString(),
+        rid: trainTypeId.toString(),
       });
       onRouteInfoOpenChange();
     },
@@ -620,28 +587,9 @@ export default function Home() {
 
   const handleStationClick = useCallback((stationId: number) => () => {}, []);
 
-  const route = useMemo(
-    () => routes?.find((r) => r.id === Number(selectedRouteId)),
-    [routes, selectedRouteId],
-  );
-
-  const fromStop = useMemo(
-    () =>
-      route?.stops.find(
-        (stop) => stop.groupId === Number(selectedFromStationId),
-      ),
-    [route?.stops, selectedFromStationId],
-  );
-
-  const modalContent = useMemo(
-    () => ({
-      id: route?.id,
-      lineName: fromStop?.line?.nameShort,
-      trainType: route?.stops.find(
-        (stop) => stop.trainType?.groupId === Number(selectedRouteId),
-      )?.trainType,
-    }),
-    [fromStop?.line?.nameShort, route?.id, route?.stops, selectedRouteId],
+  const selectedTrainType = useMemo(
+    () => trainTypes?.find((tt) => tt.id === Number(selectedRouteId)),
+    [trainTypes, selectedRouteId],
   );
 
   const fromStation = useMemo(
@@ -662,39 +610,26 @@ export default function Home() {
   const handleLaunchApp = useCallback(() => {
     const appScheme = devMode ? "trainlcd-canary://" : "trainlcd://";
 
-    const lineGroupId = route?.stops.find(
-      (stop) => stop.trainType?.groupId === Number(selectedRouteId),
-    )?.trainType?.groupId;
-
-    const direction =
-      (route?.stops ?? []).findIndex(
-        (s) => s.groupId === fromStation?.groupId,
-      ) <
-      (route?.stops ?? []).findIndex((s) => s.groupId === toStation?.groupId)
-        ? 1
-        : 0;
-
-    const lineId = fromStop?.line?.id;
+    const lineGroupId = selectedTrainType?.groupId;
+    const lineId = selectedTrainType?.line?.id;
 
     if (lineId && lineGroupId) {
       window.open(
-        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}&lgid=${lineGroupId}&dir=${direction}`,
+        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}&lgid=${lineGroupId}`,
       );
       return;
     }
 
     if (lineId) {
       window.open(
-        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}&dir=${direction}`,
+        `${appScheme}?sgid=${fromStation?.groupId}&lid=${lineId}`,
       );
     }
   }, [
     devMode,
     fromStation?.groupId,
-    fromStop?.line?.id,
-    route?.stops,
-    selectedRouteId,
-    toStation?.groupId,
+    selectedTrainType?.groupId,
+    selectedTrainType?.line?.id,
   ]);
 
   const handleUpdateSearchMode = useCallback(
@@ -815,9 +750,8 @@ export default function Home() {
               ) : (
                 <RoutesListBox
                   isLoading={isRoutesLoading}
-                  fromStationId={Number(selectedFromStationId)}
-                  routes={routes ?? []}
-                  onStationClick={handleTrainTypeClick}
+                  trainTypes={trainTypes ?? []}
+                  onTrainTypeClick={handleTrainTypeClick}
                   error={routesLoadingError}
                 />
               )}
@@ -899,8 +833,7 @@ export default function Home() {
         <RouteInfoModal
           isOpen={isRouteInfoOpen}
           onOpenChange={onRouteInfoOpenChange}
-          modalContent={modalContent}
-          route={route}
+          trainType={selectedTrainType}
           onLaunchApp={handleLaunchApp}
         />
       </FormProvider>
