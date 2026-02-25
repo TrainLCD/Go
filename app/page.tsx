@@ -659,23 +659,27 @@ export default function Home() {
     [selectedToStationId, toStationsByGroupId],
   );
 
-  const fromStationDisplayName = useMemo(() => {
-    if (fromStation?.name) return fromStation.name;
-    const fromGroupId = Number(selectedFromStationId);
-    const stop = routes
-      ?.flatMap((r) => r.stops)
-      .find((s) => s.groupId === fromGroupId);
-    return stop ? `${stop.name}駅` : undefined;
-  }, [fromStation?.name, routes, selectedFromStationId]);
+  const getStationDisplayName = useCallback(
+    (stationName: string | undefined, stationGroupId: string) => {
+      if (stationName) return stationName;
+      const groupId = Number(stationGroupId);
+      const stop = routes
+        ?.flatMap((r) => r.stops)
+        .find((s) => s.groupId === groupId);
+      return stop ? `${stop.name}駅` : undefined;
+    },
+    [routes],
+  );
 
-  const toStationDisplayName = useMemo(() => {
-    if (toStation?.name) return toStation.name;
-    const toGroupId = Number(selectedToStationId);
-    const stop = routes
-      ?.flatMap((r) => r.stops)
-      .find((s) => s.groupId === toGroupId);
-    return stop ? `${stop.name}駅` : undefined;
-  }, [toStation?.name, routes, selectedToStationId]);
+  const fromStationDisplayName = useMemo(
+    () => getStationDisplayName(fromStation?.name, selectedFromStationId),
+    [getStationDisplayName, fromStation?.name, selectedFromStationId],
+  );
+
+  const toStationDisplayName = useMemo(
+    () => getStationDisplayName(toStation?.name, selectedToStationId),
+    [getStationDisplayName, toStation?.name, selectedToStationId],
+  );
 
   const handleLaunchApp = useCallback(() => {
     const appScheme = devMode ? "trainlcd-canary://" : "trainlcd://";
@@ -792,12 +796,11 @@ export default function Home() {
             ) : null}
 
             {params.get("mode") !== "line" &&
-            fromStationDisplayName &&
-            toStationDisplayName ? (
+            (fromStationDisplayName || toStationDisplayName) ? (
               <p className="font-medium opacity-50 mt-1 mb-4 lg:mb-8 text-center text-xs">
-                {fromStationDisplayName}
+                {fromStationDisplayName ?? "..."}
                 &nbsp;-&nbsp;
-                {toStationDisplayName}
+                {toStationDisplayName ?? "..."}
               </p>
             ) : null}
 
