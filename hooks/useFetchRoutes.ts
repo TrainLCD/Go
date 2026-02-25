@@ -5,9 +5,7 @@ import type { Route, RoutesResponse } from "@/types/stationapi";
 import { generateSWRKey } from "@/utils/generateSWRKey";
 
 const getRouteFingerprint = (route: Route): string =>
-  route.stops
-    .map((stop) => `${stop.line?.id ?? 0}:${stop.trainType?.typeId ?? 0}:${stop.groupId}`)
-    .join("|");
+  route.stops.map((stop) => stop.id).join("|");
 
 const deduplicateRoutes = (routes: Route[]): Route[] => {
   const seen = new Set<string>();
