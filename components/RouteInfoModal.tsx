@@ -225,13 +225,15 @@ export const RouteInfoModal = ({
                   各線の種別
                 </h2>
                 <div className="flex flex-col gap-0.5">
-                  {linesByCompany.map(({ stop }) => (
+                  {linesByCompany.map(({ lineNames, stop }) => (
                     <div
                       key={stop.line?.company?.id}
                       className="flex items-center justify-between py-1 px-3 rounded-lg bg-gray-50"
                     >
                       <span className="text-sm text-gray-700">
-                        {stop.line?.company?.nameShort}線
+                        {lineNames.length === 1
+                          ? lineNames[0]
+                          : `${stop.line?.company?.nameShort}線`}
                       </span>
                       <span
                         className="text-sm font-bold"
