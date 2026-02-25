@@ -519,12 +519,10 @@ export default function Home() {
   const {
     stations: fromStationsByGroupId = [],
     error: fetchFromStationsByGroupIdError,
-    isLoading: isFromStationsByGroupIdLoading,
   } = useFetchStationsByGroupId(Number(params.get("fsid")));
   const {
     stations: toStationsByGroupId = [],
     error: fetchToStationsByGroupIdError,
-    isLoading: isToStationsByGroupIdLoading,
   } = useFetchStationsByGroupId(Number(params.get("tsid")));
 
   const debouncedToStationName = useDebounce(toStationName, DEBOUNCE_DELAY);
@@ -659,6 +657,24 @@ export default function Home() {
     [selectedToStationId, toStationsByGroupId],
   );
 
+  const fromStationDisplayName = useMemo(() => {
+    if (fromStation?.name) return fromStation.name;
+    const fromGroupId = Number(selectedFromStationId);
+    const stop = routes
+      ?.flatMap((r) => r.stops)
+      .find((s) => s.groupId === fromGroupId);
+    return stop ? `${stop.name}駅` : undefined;
+  }, [fromStation?.name, routes, selectedFromStationId]);
+
+  const toStationDisplayName = useMemo(() => {
+    if (toStation?.name) return toStation.name;
+    const toGroupId = Number(selectedToStationId);
+    const stop = routes
+      ?.flatMap((r) => r.stops)
+      .find((s) => s.groupId === toGroupId);
+    return stop ? `${stop.name}駅` : undefined;
+  }, [toStation?.name, routes, selectedToStationId]);
+
   const handleLaunchApp = useCallback(() => {
     const appScheme = devMode ? "trainlcd-canary://" : "trainlcd://";
 
@@ -768,22 +784,18 @@ export default function Home() {
             </p>
 
             {params.get("mode") !== "line" &&
-            (isFromStationsLoading ||
-              isToStationsLoading ||
-              !fromStation ||
-              !toStation) ? (
+            !fromStationDisplayName &&
+            !toStationDisplayName ? (
               <Skeleton className="w-32 h-4 mt-1 mb-4 lg:mb-8 self-center rounded-md" />
             ) : null}
 
             {params.get("mode") !== "line" &&
-            !isFromStationsLoading &&
-            !isToStationsLoading &&
-            fromStation &&
-            toStation ? (
+            fromStationDisplayName &&
+            toStationDisplayName ? (
               <p className="font-medium opacity-50 mt-1 mb-4 lg:mb-8 text-center text-xs">
-                {fromStation?.name}
+                {fromStationDisplayName}
                 &nbsp;-&nbsp;
-                {toStation?.name}
+                {toStationDisplayName}
               </p>
             ) : null}
 
@@ -804,27 +816,25 @@ export default function Home() {
               <Skeleton className="w-32 h-4 mt-1 mb-4 lg:mb-8 self-center rounded-md" />
             ) : null}
 
-            <>
-              {selectedLineId ? (
-                <StationListBox
-                  isLoading={isStationsLoading}
-                  stations={stationsByLineId}
-                  onTrainTypeClick={handleStationClick}
-                  error={fetchStationsError}
-                />
-              ) : (
-                <RoutesListBox
-                  isLoading={isRoutesLoading}
-                  fromStationId={Number(selectedFromStationId)}
-                  routes={routes ?? []}
-                  onStationClick={handleTrainTypeClick}
-                  error={routesLoadingError}
-                />
-              )}
-              <p className="font-medium my-2 text-xs opacity-50">
-                TrainLCDアプリで利用可能なデータであるため、実際の情報とは異なる場合があります。
-              </p>
-            </>
+            {selectedLineId ? (
+              <StationListBox
+                isLoading={isStationsLoading}
+                stations={stationsByLineId}
+                onTrainTypeClick={handleStationClick}
+                error={fetchStationsError}
+              />
+            ) : (
+              <RoutesListBox
+                isLoading={isRoutesLoading}
+                fromStationId={Number(selectedFromStationId)}
+                routes={routes ?? []}
+                onStationClick={handleTrainTypeClick}
+                error={routesLoadingError}
+              />
+            )}
+            <p className="font-medium my-2 text-xs opacity-50">
+              TrainLCDアプリで利用可能なデータであるため、実際の情報とは異なる場合があります。
+            </p>
           </div>
         )}
 
